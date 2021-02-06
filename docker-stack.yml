@@ -1,19 +1,8 @@
 version: '3.7'
 
-networks:
-  monitor-net:
-    driver: bridge
-
-volumes:
-    prometheus_data: {}
-    grafana_data: {}
-    telegram_data: {}
-
 services:
-
   prometheus:
     image: prom/prometheus:v2.24.1
-    container_name: prometheus
     volumes:
       - ./prometheus:/etc/prometheus
       - prometheus_data:/prometheus
@@ -22,35 +11,33 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=1y'
+      - '--storage.tsdb.retention.time=2y'
       - '--web.enable-lifecycle'
-    restart: unless-stopped
     ports:
       - 9090:9090
     networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
+      - monitoring
+    deploy:
+      mode: replicated
+      replicas: 1
 
   alertmanager:
     image: prom/alertmanager:v0.21.0
-    container_name: alertmanager
     volumes:
       - ./alertmanager:/etc/alertmanager
     command:
       - '--config.file=/etc/alertmanager/config.yml'
       - '--storage.path=/alertmanager'
-    restart: unless-stopped
     ports:
       - 9093:9093
     networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
+      - monitoring
+    deploy:
+      mode: replicated
+      replicas: 1
       
   telegram:
     image: metalmatze/alertmanager-bot:0.4.3
-    container_name: telegram
     volumes:
       - telegram_data:/data
     command:
@@ -61,17 +48,16 @@ services:
     environment:
       TELEGRAM_ADMIN: ""
       TELEGRAM_TOKEN: ""
-    restart: always
     ports:
       - 8080:8080
     networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
+      - monitoring
+    deploy:
+      mode: replicated
+      replicas: 1
 
   grafana:
     image: grafana/grafana:7.3.7
-    container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
@@ -80,21 +66,29 @@ services:
       - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
       - GF_USERS_ALLOW_SIGN_UP=false
-    restart: unless-stopped
     ports:
       - 3000:3000
     networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
+      - monitoring
+    deploy:
+      mode: replicated
+      replicas: 1
 
   pushgateway:
     image: prom/pushgateway:v1.4.0
-    container_name: pushgateway
-    restart: unless-stopped
     ports:
       - 9091:9091
     networks:
-      - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
+      - monitoring
+    deploy:
+      mode: replicated
+      replicas: 1
+
+networks:
+  monitoring:
+    driver: overlay
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+    telegram_data: {}
