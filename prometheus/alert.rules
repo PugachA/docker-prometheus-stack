@@ -9,3 +9,39 @@ groups:
     annotations:
       summary: "Monitor service non-operational"
       description: "Service {{ $labels.instance }} is down."
+
+  - alert: Windows free disk space
+    expr: wmi_logical_disk_free_bytes{volume=~"(^[A-Z]:$)"}/(1024*1024*1024) < 10
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critically low disk space left"
+      description: "Critically low disk '{{ $labels.volume }}' space left ({{ $value }} Gb) on instance '{{ $labels.instance }}'"
+      
+  - alert: Windows CPU Usage
+    expr: 100 - (avg by(instance) (rate(wmi_cpu_time_total{mode="idle"}[2m])) * 100) > 80
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Windows CPU Usage (instance {{ $labels.instance }})"
+      description: "CPU Usage is more than 80%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: Windows Memory Usage
+    expr: 100 - ((wmi_os_physical_memory_free_bytes / wmi_cs_physical_memory_bytes ) * 100) > 90
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Windows Memory Usage (instance {{ $labels.instance }})"
+      description: "Memory usage is more than 90%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: Windows Disk Space Usage
+    expr: 100.0-100*((wmi_logical_disk_free_bytes{volume=~"(^[A-Z]:$)"}/1024/1024 ) / (wmi_logical_disk_size_bytes/1024/1024)) > 85
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Windows disk '{{ $labels.volume }}' Space Usage (instance {{ $labels.instance }})"
+      description: "Disk usage is more than 85%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
