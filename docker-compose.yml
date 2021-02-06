@@ -7,6 +7,7 @@ networks:
 volumes:
     prometheus_data: {}
     grafana_data: {}
+    telegram_data: {}
 
 services:
 
@@ -42,6 +43,27 @@ services:
     restart: unless-stopped
     ports:
       - 9093:9093
+    networks:
+      - monitor-net
+    labels:
+      org.label-schema.group: "monitoring"
+      
+  telegram:
+    image: metalmatze/alertmanager-bot:0.4.3
+    container_name: telegram
+    volumes:
+      - telegram_data:/data
+    command:
+      - --alertmanager.url=http://alertmanager:9093
+      - --log.level=info
+      - --store=bolt
+      - --bolt.path=/data/bot.db
+    environment:
+      TELEGRAM_ADMIN: ""
+      TELEGRAM_TOKEN: ""
+    restart: always
+    ports:
+      - 8080:8080
     networks:
       - monitor-net
     labels:
