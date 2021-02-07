@@ -12,6 +12,10 @@ route:
         severity: critical
       receiver: 'gmail'
 
+    - match:
+        severity: critical
+      receiver: 'telegram'
+
 receivers:
 - name: 'telegram'
   webhook_configs:
