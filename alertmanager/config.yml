@@ -5,16 +5,7 @@ global:
   smtp_auth_password: ''
 
 route:
-  receiver: 'telegram'
-
-  routes:
-    - match:
-        severity: critical
-      receiver: 'gmail'
-
-    - match:
-        severity: critical
-      receiver: 'telegram'
+  receiver: 'telegram_and_mail'
 
 receivers:
 - name: 'telegram'
@@ -23,6 +14,14 @@ receivers:
     url: 'http://telegram:8080'
 
 - name: 'gmail'
+  email_configs:
+  - to: 'fotone97@yandex.ru'
+    send_resolved: true
+
+- name: 'telegram_and_mail'
+  webhook_configs:
+  - send_resolved: true
+    url: 'http://telegram:8080'
   email_configs:
   - to: 'fotone97@yandex.ru'
     send_resolved: true
