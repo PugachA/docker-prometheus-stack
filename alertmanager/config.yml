@@ -5,6 +5,7 @@ global:
   smtp_auth_password: ''
 
 route:
+  repeat_interval: 24h
   receiver: 'telegram_and_mail'
 
 receivers:

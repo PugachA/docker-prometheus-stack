@@ -38,7 +38,7 @@ groups:
       description: "Memory usage is more than 90%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
 
   - alert: Windows Disk Space Usage
-    expr: 100.0-100*((wmi_logical_disk_free_bytes{volume=~"(^[A-Z]:$)"}/1024/1024 ) / (wmi_logical_disk_size_bytes/1024/1024)) > 85
+    expr: 100.0-100*((wmi_logical_disk_free_bytes{volume=~"(^[A-Z]:$)"}/1024/1024 ) / (wmi_logical_disk_size_bytes/1024/1024)) > 90
     for: 2m
     labels:
       severity: critical
