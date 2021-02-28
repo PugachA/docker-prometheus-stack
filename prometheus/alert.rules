@@ -20,7 +20,7 @@ groups:
       description: "Critically low disk '{{ $labels.volume }}' space left ({{ $value }} Gb) on instance '{{ $labels.instance }}'"
       
   - alert: Windows CPU Usage
-    expr: 100 - (avg by(instance) (rate(wmi_cpu_time_total{mode="idle"}[2m])) * 100) > 80
+    expr: 100 - (avg by(instance) (rate(wmi_cpu_time_total{mode="idle"}[5m])) * 100) > 80
     for: 30s
     labels:
       severity: critical
@@ -44,4 +44,4 @@ groups:
       severity: critical
     annotations:
       summary: "Windows disk '{{ $labels.volume }}' Space Usage (instance {{ $labels.instance }})"
-      description: "Disk usage is more than 85%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      description: "Disk usage is more than 90%\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
